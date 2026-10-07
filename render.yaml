@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: deveshu-finbert-sentiment
+    runtime: docker
+    plan: free
+    dockerfilePath: ./app/Dockerfile
+    dockerContext: ./app
+    healthCheckPath: /api/health
+    envVars:
+      - key: ARTIFACT_REPO
+        value: deveshu/finbert-sentiment-artifacts
+      - key: HF_TOKEN
+        sync: false

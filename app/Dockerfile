@@ -1,0 +1,10 @@
+FROM python:3.12-slim
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH PYTHONUNBUFFERED=1 PORT=7860 OMP_NUM_THREADS=1
+WORKDIR /home/user/app
+COPY --chown=user requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+COPY --chown=user . .
+EXPOSE 7860
+CMD exec gunicorn --bind 0.0.0.0:$PORT --preload --workers 1 --threads 2 --timeout 120 "server:create_app()"

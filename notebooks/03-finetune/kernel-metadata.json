@@ -1,5 +1,5 @@
 {
-  "id": "fr4nc1um/finbert-sentiment-03-finetune",
+  "id": "deveshupathak/finbert-sentiment-03-finetune",
   "title": "FinBERT Sentiment 03 Finetune",
   "code_file": "03-finetune.ipynb",
   "language": "python",
@@ -13,7 +13,7 @@
   "dataset_sources": [],
   "competition_sources": [],
   "kernel_sources": [
-    "fr4nc1um/finbert-sentiment-02-data-baseline"
+    "deveshupathak/finbert-sentiment-02-data-baseline"
   ],
   "model_sources": []
 }

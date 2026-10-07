@@ -1,5 +1,5 @@
 {
-  "id": "fr4nc1um/finbert-sentiment-06-market-model",
+  "id": "deveshupathak/finbert-sentiment-06-market-model",
   "title": "FinBERT Sentiment 06 Market Model",
   "code_file": "06-market-model.ipynb",
   "language": "python",
@@ -10,6 +10,6 @@
   "enable_internet": false,
   "dataset_sources": ["paveljurke/s-and-p-500-gspc-historical-data"],
   "competition_sources": [],
-  "kernel_sources": ["fr4nc1um/finbert-sentiment-05-headline-scoring"],
+  "kernel_sources": ["deveshupathak/finbert-sentiment-05-headline-scoring"],
   "model_sources": []
 }

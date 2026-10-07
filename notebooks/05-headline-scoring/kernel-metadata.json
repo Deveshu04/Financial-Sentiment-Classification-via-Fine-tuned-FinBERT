@@ -1,5 +1,5 @@
 {
-  "id": "fr4nc1um/finbert-sentiment-05-headline-scoring",
+  "id": "deveshupathak/finbert-sentiment-05-headline-scoring",
   "title": "FinBERT Sentiment 05 Headline Scoring",
   "code_file": "05-headline-scoring.ipynb",
   "language": "python",
@@ -10,6 +10,6 @@
   "enable_internet": false,
   "dataset_sources": ["notlucasp/financial-news-headlines"],
   "competition_sources": [],
-  "kernel_sources": ["fr4nc1um/finbert-sentiment-03-finetune"],
+  "kernel_sources": ["deveshupathak/finbert-sentiment-03-finetune"],
   "model_sources": []
 }

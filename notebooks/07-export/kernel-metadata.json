@@ -1,5 +1,5 @@
 {
-  "id": "fr4nc1um/finbert-sentiment-07-export",
+  "id": "deveshupathak/finbert-sentiment-07-export",
   "title": "FinBERT Sentiment 07 Export",
   "code_file": "07-export.ipynb",
   "language": "python",
@@ -10,6 +10,6 @@
   "enable_internet": true,
   "dataset_sources": [],
   "competition_sources": [],
-  "kernel_sources": ["fr4nc1um/finbert-sentiment-02-data-baseline", "fr4nc1um/finbert-sentiment-03-finetune", "fr4nc1um/finbert-sentiment-04-evaluation", "fr4nc1um/finbert-sentiment-06-market-model"],
+  "kernel_sources": ["deveshupathak/finbert-sentiment-02-data-baseline", "deveshupathak/finbert-sentiment-03-finetune", "deveshupathak/finbert-sentiment-04-evaluation", "deveshupathak/finbert-sentiment-06-market-model"],
   "model_sources": []
 }

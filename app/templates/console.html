@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tone %}
+{% block title %}Console{% endblock %}
+{% block main %}
+<section class="intro">
+  <h1>Score financial text with FinBERT</h1>
+  <figure id="hero" class="hero">
+    <blockquote>{{ hero.text }}</blockquote>
+    <figcaption>The served model reads this sentence as <strong>{{ hero.label }}</strong>.</figcaption>
+    {{ tone(hero.probabilities, "large") }}
+  </figure>
+  <p class="lede">The model was fine-tuned on the Financial PhraseBank and labels each sentence negative, neutral or positive. This copy is quantised to 8-bit integers with ONNX Runtime so it fits a small server; on the held-out test sentences it scores {{ int8.test.accuracy|fmt('percent') }} accuracy against {{ int8.test.full_accuracy|fmt('percent') }} for the full-precision model.</p>
+</section>
+<section aria-labelledby="try">
+  <h2 id="try">Score your own text</h2>
+  <label for="text-input">One sentence per line, up to {{ limits.texts }} lines of at most {{ limits.chars|thousands }} characters each</label>
+  <textarea id="text-input" rows="5" spellcheck="false" placeholder="Operating profit rose to 13.1 million euros from 8.7 million euros."></textarea>
+  <div class="actions">
+    <button id="score" type="button">Score</button>
+    <span class="hint">or press Ctrl and Enter</span>
+  </div>
+  <p class="examples-label" id="examples-label">Or try one of these:</p>
+  <div class="examples" role="group" aria-labelledby="examples-label">
+    {% for example in examples %}<button type="button" class="example" data-example="{{ example }}">{{ example }}</button>{% endfor %}
+  </div>
+  <p id="status" role="status"></p>
+  <ol id="results" class="results"></ol>
+</section>
+<section aria-labelledby="api">
+  <h2 id="api">REST API</h2>
+  <p>Send one text or up to {{ limits.texts }} texts. Each text is scored on its own, so a sentence gets the same probabilities whatever it is sent with.</p>
+  <pre><code>curl -X POST {{ base_url }}/api/sentiment -H "Content-Type: application/json" -d '{"text": "Quarterly revenue rose 12 percent, beating analyst expectations."}'</code></pre>
+  <pre><code>curl -X POST {{ base_url }}/api/sentiment -H "Content-Type: application/json" -d '{"texts": ["Margins improved.", "The lender raised its loan loss provisions."]}'</code></pre>
+  <pre><code>curl "{{ base_url }}/api/market/sessions?start=2020-02-01&amp;end=2020-04-30"</code></pre>
+  <pre><code>curl {{ base_url }}/api/metrics</code></pre>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='console.js') }}"></script>{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "_macros.html" import benchmark_table %}
+{% block title %}Market{% endblock %}
+{% block main %}
+<section class="intro">
+  <h1>Headline sentiment and the next S&amp;P 500 session</h1>
+  <p>FinBERT scored {{ m.counts.headlines_scored|thousands }} Reuters headlines. Each trading session's features come only from headlines dated before it, and an XGBoost regressor predicts whether the session closes above its open. The model was refitted every 20 sessions on earlier data only and judged on {{ m.counts.test }} sessions from {{ m.test_start }} to {{ m.test_end }}.</p>
+</section>
+<section aria-labelledby="bench">
+  <h2 id="bench">Benchmarks</h2>
+  {{ benchmark_table(benchmarks) }}
+</section>
+<section aria-labelledby="all">
+  <h2 id="all">Every model on the same sessions</h2>
+  <div id="contrasts" class="chart" role="img" aria-label="Walk-forward directional accuracy of each model with 95% block bootstrap intervals, against 50% and the target"></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Model</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">95% interval</th><th scope="col" class="num">Binomial p against 0.5</th><th scope="col" class="num">p against always up</th><th scope="col" class="num">Pesaran-Timmermann</th></tr></thead>
+    <tbody>
+    {% for key in order %}
+      {% set r = m.models[key] %}
+      <tr><th scope="row">{{ names[key] }}</th><td class="num">{{ r.accuracy|fmt('percent') }}</td><td class="num">{{ r.low|fmt('percent') }} to {{ r.high|fmt('percent') }}</td><td class="num">{{ r.binomial_p|fmt('pvalue') }}</td><td class="num">{{ r.binomial_p_majority|fmt('pvalue') }}</td><td class="num">{% if r.pt_stat is none %}undefined{% else %}{{ r.pt_stat|fmt }} (p {{ r.pt_p|fmt('pvalue') }}){% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="note">{{ m.always_up_rate|fmt('percent') }} of the test sessions closed above their open, which is what always predicting up scores. The binomial test against 0.5 was fixed in advance as the benchmark test. The Pesaran-Timmermann test asks whether predicted and actual directions are independent; it is undefined for a model that never changes its call.</p>
+</section>
+<section aria-labelledby="roll">
+  <h2 id="roll">Rolling accuracy</h2>
+  <div id="rolling" class="chart" role="img" aria-label="Rolling directional accuracy of the headline model against the share of up sessions"></div>
+</section>
+<section aria-labelledby="tone-title">
+  <h2 id="tone-title">Sentiment and intraday returns</h2>
+  <p class="note">Five-session means of headline net tone (<code>net_tone_r5</code>, positive minus negative probability) and of the open to close return, over every session with a complete headline window. The session-level data behind these charts is served at <code>/api/market/sessions</code>.</p>
+  <div id="tone" class="chart" role="img" aria-label="Headline net tone and the S&amp;P 500 open to close return over time"></div>
+</section>
+<section aria-labelledby="where">
+  <h2 id="where">Where the headline model was right</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Period</th><th scope="col" class="num">Sessions</th><th scope="col" class="num">Accuracy</th></tr></thead>
+    <tbody>
+    {% for row in m.diagnostics.half_year %}<tr><th scope="row">{{ row.period }}</th><td class="num">{{ row.n }}</td><td class="num">{{ row.accuracy|fmt('percent') }}</td></tr>{% endfor %}
+      <tr><th scope="row">February to April 2020</th><td class="num">{{ m.diagnostics.covid.feb_apr_2020.n }}</td><td class="num">{{ m.diagnostics.covid.feb_apr_2020.accuracy|fmt('percent') }}</td></tr>
+      <tr><th scope="row">All other test sessions</th><td class="num">{{ m.diagnostics.covid.rest.n }}</td><td class="num">{{ m.diagnostics.covid.rest.accuracy|fmt('percent') }}</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">Strongest features in the last refit, by gain: {% for row in m.feature_gain[:5] %}<code>{{ row.feature }}</code>{{ ", " if not loop.last }}{% endfor %}.</p>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='market.js') }}"></script>{% endblock %}

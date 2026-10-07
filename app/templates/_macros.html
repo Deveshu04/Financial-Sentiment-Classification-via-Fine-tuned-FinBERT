@@ -1,0 +1,32 @@
+{% macro status(met) %}<span class="status {{ 'met' if met else 'missed' }}"><svg viewBox="0 0 16 16" aria-hidden="true">{% if met %}<path d="M3.5 8.5l3 3 6-7"/>{% else %}<path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>{% endif %}</svg>{{ 'Met' if met else 'Missed' }}</span>{% endmacro %}
+
+{% macro benchmark_table(rows) %}
+<div class="table-wrap">
+<table class="benchmarks">
+  <thead><tr><th scope="col">Benchmark</th><th scope="col">Scope</th><th scope="col" class="num">Target</th><th scope="col" class="num">Achieved</th><th scope="col" class="num">95% interval</th><th scope="col">Status</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <th scope="row">{{ row.name }}</th>
+      <td>{{ row.scope }}</td>
+      <td class="num">{{ 'at least' if row.direction == '>=' else 'below' }} {{ row.target|fmt(row.format) }}</td>
+      <td class="num">{{ row.achieved|fmt(row.format) }}</td>
+      <td class="num">{% if row.low is not none %}{{ row.low|fmt(row.format) }} to {{ row.high|fmt(row.format) }}{% else %}n/a{% endif %}</td>
+      <td>{{ status(row.met) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endmacro %}
+
+{% macro estimate(result, kind) %}{{ result.value|fmt(kind) }} <span class="ci">{{ result.low|fmt(kind) }} to {{ result.high|fmt(kind) }}</span>{% endmacro %}
+
+{% macro tone(probabilities, size) %}
+<div class="tone {{ size }}" role="img" aria-label="{% for label, value in probabilities.items() %}{{ label }} {{ '%.1f'|format(value * 100) }}%{{ ', ' if not loop.last }}{% endfor %}">
+  {% for label, value in probabilities.items() %}<span class="segment {{ label }}" style="flex-grow: {{ '%.4f'|format(value) }}"></span>{% endfor %}
+</div>
+<ul class="tone-values">
+  {% for label, value in probabilities.items() %}<li class="{{ label }}">{{ label }} {{ '%.1f'|format(value * 100) }}%</li>{% endfor %}
+</ul>
+{% endmacro %}

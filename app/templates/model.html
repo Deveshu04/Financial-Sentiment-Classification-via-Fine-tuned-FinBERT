@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% from "_macros.html" import benchmark_table, estimate %}
+{% block title %}Model{% endblock %}
+{% block main %}
+<section class="intro">
+  <h1>The sentiment model</h1>
+  <p>{{ s.counts.test }} held-out test sentences from the Financial PhraseBank, scored once after every choice was fixed on validation data. The headline model was fine-tuned from <code>{{ s.checkpoint }}</code> and is the seed ({{ s.chosen_seed }}) with the best validation accuracy of three.</p>
+</section>
+<section aria-labelledby="bench">
+  <h2 id="bench">Benchmarks</h2>
+  {{ benchmark_table(benchmarks) }}
+</section>
+<section aria-labelledby="models">
+  <h2 id="models">Three models on the test split</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Model</th><th scope="col" class="num">Accuracy, 95% interval</th><th scope="col" class="num">Macro F1, 95% interval</th></tr></thead>
+    <tbody>
+    {% for key in ("finbert", "baseline", "prosus") %}
+      <tr><th scope="row">{{ names[key] }}</th><td class="num">{{ estimate(s.models[key].accuracy, 'percent') }}</td><td class="num">{{ estimate(s.models[key].macro_f1, 'decimal') }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="note">ProsusAI/finbert was fine-tuned on the Financial PhraseBank by its authors, so it has probably seen these test sentences. It is shown as a reference and is never the headline.</p>
+</section>
+<section aria-labelledby="gain">
+  <h2 id="gain">Improvement over TF-IDF + Logistic Regression</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Reading</th><th scope="col" class="num">Value, 95% interval</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Relative accuracy gain (pre-registered)</th><td class="num">{{ estimate(s.improvement.relative_accuracy, 'percent') }}</td></tr>
+      <tr><th scope="row">Absolute accuracy gain</th><td class="num">{{ estimate(s.improvement.absolute_accuracy, 'points') }}</td></tr>
+      <tr><th scope="row">Relative macro F1 gain</th><td class="num">{{ estimate(s.improvement.relative_macro_f1, 'percent') }}</td></tr>
+      <tr><th scope="row">Absolute macro F1 gain</th><td class="num">{{ estimate(s.improvement.absolute_macro_f1, 'decimal') }}</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">McNemar exact test: FinBERT right and the baseline wrong on {{ s.mcnemar.finbert_only }} sentences, the reverse on {{ s.mcnemar.baseline_only }}, p {{ s.mcnemar.p|fmt('pvalue') }}.</p>
+</section>
+<section aria-labelledby="agreement">
+  <h2 id="agreement">Accuracy by annotator agreement</h2>
+  <div id="slices" class="chart" role="img" aria-label="Test accuracy with 95% intervals for each model on the full test split and on sentences with at least 66%, 75% and 100% annotator agreement"></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Sentences</th><th scope="col" class="num">n</th>{% for key in ("finbert", "baseline", "prosus") %}<th scope="col" class="num">{{ names[key] }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for item in s.slices %}
+      <tr><th scope="row">{{ item.name }}</th><td class="num">{{ item.n }}</td>{% for key in ("finbert", "baseline", "prosus") %}<td class="num">{{ item.models[key].accuracy.value|fmt('percent') }}</td>{% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+<section aria-labelledby="errors">
+  <h2 id="errors">Where the models go wrong</h2>
+  <div class="matrices">
+  {% for key in ("finbert", "baseline") %}
+    <figure>
+      <figcaption>{{ names[key] }}: rows are true labels, columns predictions</figcaption>
+      <table class="matrix">
+        <thead><tr><td></td><th scope="col">negative</th><th scope="col">neutral</th><th scope="col">positive</th></tr></thead>
+        <tbody>
+        {% set row_max = s.models[key].confusion|map('max')|max %}
+        {% for label in ("negative", "neutral", "positive") %}
+          <tr><th scope="row">{{ label }}</th>{% for cell in s.models[key].confusion[loop.index0] %}<td class="num" style="--share: {{ '%.3f'|format(cell / row_max) }}">{{ cell }}</td>{% endfor %}</tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </figure>
+  {% endfor %}
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Class</th>{% for key in ("finbert", "baseline") %}<th scope="col" class="num">{{ names[key] }} precision</th><th scope="col" class="num">recall</th><th scope="col" class="num">F1</th>{% endfor %}<th scope="col" class="num">Sentences</th></tr></thead>
+    <tbody>
+    {% for label in ("negative", "neutral", "positive") %}
+      <tr><th scope="row">{{ label }}</th>{% for key in ("finbert", "baseline") %}{% set c = s.models[key].per_class[label] %}<td class="num">{{ c.precision|fmt }}</td><td class="num">{{ c.recall|fmt }}</td><td class="num">{{ c.f1|fmt }}</td>{% endfor %}<td class="num">{{ s.models.finbert.per_class[label].support }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+<section aria-labelledby="seeds">
+  <h2 id="seeds">Seeds and the served copy</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Seed</th><th scope="col" class="num">Validation accuracy</th><th scope="col" class="num">Test accuracy</th><th scope="col" class="num">Test macro F1</th></tr></thead>
+    <tbody>
+    {% for seed in s.seeds %}
+      <tr><th scope="row">{{ seed.seed }}{% if seed.seed == s.chosen_seed %} (headline){% endif %}</th><td class="num">{{ seed.val_accuracy|fmt('percent') }}</td><td class="num">{{ seed.test_accuracy|fmt('percent') }}</td><td class="num">{{ seed.test_macro_f1|fmt }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Split</th><th scope="col" class="num">int8 accuracy</th><th scope="col" class="num">Full accuracy</th><th scope="col" class="num">int8 macro F1</th><th scope="col" class="num">Full macro F1</th><th scope="col" class="num">Labels changed</th></tr></thead>
+    <tbody>
+    {% for split in ("val", "test") %}
+      {% set r = s.int8[split] %}
+      <tr><th scope="row">{{ 'Validation' if split == 'val' else 'Test' }}</th><td class="num">{{ r.accuracy|fmt('percent') }}</td><td class="num">{{ r.full_accuracy|fmt('percent') }}</td><td class="num">{{ r.macro_f1|fmt }}</td><td class="num">{{ r.full_macro_f1|fmt }}</td><td class="num">{{ r.flipped }} of {{ r.n }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='model.js') }}"></script>{% endblock %}

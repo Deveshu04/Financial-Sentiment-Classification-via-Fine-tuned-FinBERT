@@ -1,0 +1,19 @@
+{
+  "id": "fr4nc1um/finbert-sentiment-03-finetune",
+  "title": "FinBERT Sentiment 03 Finetune",
+  "code_file": "03-finetune.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "docker_image_pinning_type": "latest",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "fr4nc1um/finbert-sentiment-02-data-baseline"
+  ],
+  "model_sources": []
+}

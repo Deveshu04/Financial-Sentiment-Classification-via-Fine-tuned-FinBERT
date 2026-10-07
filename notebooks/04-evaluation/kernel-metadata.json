@@ -1,0 +1,15 @@
+{
+  "id": "fr4nc1um/finbert-sentiment-04-evaluation",
+  "title": "FinBERT Sentiment 04 Evaluation",
+  "code_file": "04-evaluation.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": ["fr4nc1um/finbert-sentiment-02-data-baseline", "fr4nc1um/finbert-sentiment-03-finetune"],
+  "model_sources": []
+}

@@ -30,6 +30,10 @@ def parse_texts(body):
             raise ValidationError("every text must be a non-empty string")
         if len(text) > MAX_CHARS:
             raise ValidationError(f"each text is limited to {MAX_CHARS} characters")
+        try:
+            text.encode("utf-8")
+        except UnicodeEncodeError:
+            raise ValidationError("texts must be valid Unicode; one contains an unpaired surrogate") from None
     return texts
 
 

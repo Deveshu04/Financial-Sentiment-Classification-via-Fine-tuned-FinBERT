@@ -11,23 +11,23 @@ FinBERT was fine-tuned on 3,868 Financial PhraseBank sentences with every settin
 | Benchmark | Scope | Target | Achieved | 95% interval | Status |
 |---|---|---|---|---|---|
 | Test accuracy | all test sentences | 93.4% | 83.5% | 80.0% to 87.0% | Missed |
-| Test macro F1 | all test sentences | 0.91 | 0.822 | 0.783 to 0.859 | Missed |
+| Test macro F1 | all test sentences | 0.91 | 0.821 | 0.783 to 0.859 | Missed |
 | Relative accuracy gain over TF-IDF + LR | all test sentences | 19% | 8.6% | 3.1% to 14.4% | Missed |
 | Test accuracy | sentences all annotators agreed on | 93.4% | 96.5% | 93.8% to 98.7% | Met |
 | Test macro F1 | sentences all annotators agreed on | 0.91 | 0.952 | 0.914 to 0.984 | Met |
 
 | Model | Test accuracy | 95% interval | Macro F1 | 95% interval |
 |---|---|---|---|---|
-| Fine-tuned FinBERT (headline) | 83.5% | 80.0% to 87.0% | 0.822 | 0.783 to 0.859 |
-| TF-IDF + Logistic Regression, tuned | 76.9% | 72.9% to 80.6% | 0.733 | 0.684 to 0.779 |
+| Fine-tuned FinBERT (headline) | 83.5% | 80.0% to 87.0% | 0.821 | 0.783 to 0.859 |
+| TF-IDF + Logistic Regression, tuned | 76.9% | 72.9% to 80.6% | 0.732 | 0.684 to 0.779 |
 | ProsusAI/finbert as published (trained on the PhraseBank) | 88.6% | 85.7% to 91.3% | 0.877 | 0.843 to 0.907 |
 
 | Reading of "outperforming the baseline" | Value | 95% interval |
 |---|---|---|
 | Relative accuracy gain (fixed in advance as the headline) | 8.6% | 3.1% to 14.4% |
 | Absolute accuracy gain | 6.6 points | 2.5 to 10.7 points |
-| Relative macro F1 gain | 12.2% | 5.4% to 19.8% |
-| Absolute macro F1 gain | 0.089 | 0.043 to 0.138 |
+| Relative macro F1 gain | 12.1% | 5.4% to 19.8% |
+| Absolute macro F1 gain | 0.089 | 0.043 to 0.137 |
 
 | Test sentences | n | Fine-tuned FinBERT | TF-IDF + LR | ProsusAI reference |
 |---|---|---|---|---|
@@ -41,7 +41,7 @@ What the numbers say:
 - FinBERT beats a properly tuned baseline, and the gap is not chance: on the test sentences where exactly one of the two is right, FinBERT wins 65 and the baseline 33 (exact McNemar test, p = 0.0016). The gain is 8.6% relative accuracy, not 19%.
 - On all test sentences the 93.4% and 0.91 targets are out of reach: even the upper ends of the intervals (87.0% and 0.859) fall short. They are met on the sentences every annotator agreed on (96.5% and 0.952). That is the same pattern the original FinBERT paper reports, 0.86 accuracy on all of the PhraseBank and 0.97 on its full-agreement subset ([Araci, 2019](https://arxiv.org/abs/1908.10063)).
 - The popular `ProsusAI/finbert` checkpoint scores 5 points higher without any training here. Its model card states it was fine-tuned on the Financial PhraseBank, so it has probably seen these test sentences; that is why the headline model starts from a FinBERT that never saw them.
-- Three seeds of the chosen configuration score 82.2% to 83.5% on test (mean 82.6%, standard deviation 0.7 points), so the headline seed is not a lucky one.
+- Three seeds of the chosen configuration score 82.2% to 83.5% on test (mean 82.6%, standard deviation 0.7 points). The headline seed, picked on validation accuracy, is also the best of the three on test, 0.8 points above their mean, so the mean is the fairer guide to what a retrained model would score.
 - Most errors are between neutral and positive: 29 neutral sentences called positive and 30 positive sentences called neutral. Negatives are recognised well (recall 0.85).
 - With 484 test sentences each sentence is worth 0.21 points of accuracy, and the intervals resample sentences independently.
 
@@ -79,7 +79,7 @@ What the numbers say:
 ## How the resume figures map onto the data
 
 - "4.8K annotated sentences": the 50% agreement file has 4,846 lines; 4,836 sentences remain after dropping 2 sentences whose copies carry different labels and collapsing 6 repeats.
-- "93.4% accuracy and 0.91 macro F1": measured 83.5% and 0.822 on all test sentences, 96.5% and 0.952 on the sentences every annotator agreed on.
+- "93.4% accuracy and 0.91 macro F1": measured 83.5% and 0.821 on all test sentences, 96.5% and 0.952 on the sentences every annotator agreed on.
 - "outperforming a TF-IDF + Logistic Regression baseline by 19%": read as the relative accuracy gain, fixed before any test result; measured 8.6%. The other three readings are in the table above.
 - "8,000+ Reuters financial headlines": 32,692 headlines were scored.
 - "next-day S&P 500 return direction": the direction of the next session's open to close return. The headlines carry a date but no time, so a headline dated on a trading day may have appeared after that day's close; predicting from the open of the following session keeps every input before the bell.

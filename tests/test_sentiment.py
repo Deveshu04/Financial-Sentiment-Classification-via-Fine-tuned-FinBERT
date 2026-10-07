@@ -57,7 +57,7 @@ def test_concurrent_equals_sequential(classifier):
 @pytest.mark.parametrize("body", [
     None, [], "text", 5, {}, {"text": ""}, {"text": "   "}, {"text": 5}, {"text": True}, {"text": None},
     {"texts": []}, {"texts": "profit"}, {"texts": ["ok", 3]}, {"texts": ["ok", ""]}, {"texts": ["ok"] * (MAX_TEXTS + 1)},
-    {"text": "x" * (MAX_CHARS + 1)}, {"text": "a", "texts": ["b"]}, {"text": "a", "mode": "fast"}, {"texts": [float("nan")]},
+    {"text": "x" * (MAX_CHARS + 1)}, {"text": "a", "texts": ["b"]}, {"text": "a", "mode": "fast"}, {"texts": [float("nan")]}, {"text": "\ud800 profit"}, {"texts": ["ok", "\udc00"]},
 ])
 def test_parse_texts_rejects(body):
     with pytest.raises(ValidationError):

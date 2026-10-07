@@ -7,4 +7,4 @@ COPY --chown=user requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 COPY --chown=user . .
 EXPOSE 7860
-CMD exec gunicorn --bind 0.0.0.0:$PORT --preload --workers 1 --threads 2 --timeout 120 "server:create_app()"
+CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120 "server:create_app()"

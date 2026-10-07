@@ -56,3 +56,13 @@ def test_console_hero_shows_the_model_reading_of_the_first_example(client, class
     assert EXAMPLES[0] in hero and reading["label"] in hero
     for label, value in reading["probabilities"].items():
         assert f"{label} {value * 100:.1f}%" in hero
+
+
+def test_console_examples_use_the_forwarded_scheme(client):
+    html = client.get("/", headers={"X-Forwarded-Proto": "https"}).get_data(as_text=True)
+    assert "https://localhost/api/sentiment" in html and "http://localhost/api/sentiment" not in html
+
+
+def test_market_page_names_the_eligible_sessions(client):
+    html = client.get("/market").get_data(as_text=True)
+    assert "every eligible session" in html and "complete headline window" not in html

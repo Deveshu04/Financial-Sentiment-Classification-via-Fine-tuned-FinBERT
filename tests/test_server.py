@@ -41,7 +41,10 @@ def test_sentiment_batch_matches_singles(client):
     '{"text": "a", "texts": ["b"]}',
     '{"text": "' + "x" * (MAX_CHARS + 1) + '"}',
     '{"texts": [' + ", ".join(['"a"'] * (MAX_TEXTS + 1)) + "]}",
-])
+    '{"text": "\\ud800 profit"}',
+    "[" * 50000,
+    '{"text": ' * 20000 + '"x"' + "}" * 20000,
+], ids=lambda payload: payload[:24])
 def test_sentiment_bad_bodies(client, payload):
     out = client.post("/api/sentiment", data=payload, content_type="application/json")
     assert out.status_code == 400

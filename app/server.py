@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import Flask, jsonify, render_template, request
 from flask.json.provider import DefaultJSONProvider
 from werkzeug.exceptions import HTTPException
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from artifacts import ensure_artifacts, hub_download
 from errors import ValidationError
@@ -62,6 +63,7 @@ def create_app(artifact_dir=None):
     benchmarks = {kind: [b for b in metrics["benchmarks"] if b["kind"] == kind] for kind in ("sentiment", "market")}
     hero = {"text": EXAMPLES[0], **classifier.predict([EXAMPLES[0]])[0]}
     app = App(__name__)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
     app.config["MAX_CONTENT_LENGTH"] = 256 * 1024
     app.add_template_filter(fmt, "fmt")
     app.add_template_filter(thousands, "thousands")
@@ -89,7 +91,11 @@ def create_app(artifact_dir=None):
 
     @app.post("/api/sentiment")
     def score():
-        texts = parse_texts(request.get_json(silent=True))
+        try:
+            body = request.get_json(silent=True)
+        except RecursionError:
+            raise ValidationError("the JSON body is nested too deeply") from None
+        texts = parse_texts(body)
         started = time.perf_counter()
         predictions = classifier.predict(texts)
         return jsonify(model=MODEL_NAME, predictions=predictions, latency_ms=round((time.perf_counter() - started) * 1000, 2))
